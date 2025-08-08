@@ -1,135 +1,112 @@
 // Importation des modules Firebase
-import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.17.2/firebase-auth.js";
-import { getFirestore, doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/9.17.2/firebase-firestore.js";
-import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.17.2/firebase-storage.js";
+import { supabase } from './supabaseClient.js';
 
-document.addEventListener("DOMContentLoaded", () => {
-    const auth = getAuth();
-    const db = getFirestore();
-    const storage = getStorage();
+document.addEventListener("DOMContentLoaded", async () => {
+  // Récupération de l'utilisateur courant
+  const { data: userData } = await supabase.auth.getUser();
+  const user = userData?.user;
+  if (!user) {
+    window.location.href = "connexion.html";
+    return;
+  }
 
-    // Sélecteurs HTML
-    const profileForm = document.getElementById("profile-form");
-    const firstNameInput = document.getElementById("first-name");
-    const lastNameInput = document.getElementById("last-name");
-    const emailInput = document.getElementById("email");
-    const phoneInput = document.getElementById("phone-number");
-    const addressInput = document.getElementById("address");
-    const profilePicInput = document.getElementById("profile-pic");
-    const profilePicPreview = document.getElementById("profile-pic-preview");
-    const successMessage = document.getElementById("success-message");
-    const errorMessage = document.getElementById("email-error");
+  // Sélecteurs HTML
+  const profileForm = document.getElementById("profile-form");
+  const firstNameInput = document.getElementById("first-name");
+  const lastNameInput = document.getElementById("last-name");
+  const emailInput = document.getElementById("email");
+  const phoneInput = document.getElementById("phone-number");
+  const addressInput = document.getElementById("address");
+  const profilePicInput = document.getElementById("profile-pic");
+  const profilePicPreview = document.getElementById("profile-pic-preview");
+  const successMessage = document.getElementById("success-message");
+  const errorMessage = document.getElementById("email-error");
 
-    let uploadedProfilePicURL = null; // URL de la photo de profil
+  let uploadedProfilePicURL = null;
 
-    // Vérification si l'utilisateur est connecté
-    onAuthStateChanged(auth, async (user) => {
-        if (user) {
-            console.log("Utilisateur connecté :", user.uid);
+  // Charger les données utilisateur depuis la table users
+  try {
+    const { data: profile, error } = await supabase
+      .from('users')
+      .select('*')
+      .eq('id', user.id)
+      .single();
+    if (error && error.code !== 'PGRST116') throw error; // ignore not found
 
-            try {
-                // Charger les données utilisateur depuis Firestore
-                const userDocRef = doc(db, "users", user.uid);
-                const userDocSnap = await getDoc(userDocRef);
+    if (profile) {
+      firstNameInput.value = profile.first_name || "";
+      lastNameInput.value = profile.last_name || "";
+      emailInput.value = profile.email || user.email || "";
+      phoneInput.value = profile.phone || "";
+      addressInput.value = profile.address || "";
+      if (profile.profile_pic) {
+        profilePicPreview.src = profile.profile_pic;
+        uploadedProfilePicURL = profile.profile_pic;
+      }
+    }
+  } catch (e) {
+    console.error('Erreur chargement profil:', e);
+  }
 
-                if (userDocSnap.exists()) {
-                    const userData = userDocSnap.data();
+  // Prévisualisation de la photo de profil
+  profilePicInput?.addEventListener("change", (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        profilePicPreview.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+  });
 
-                    // Pré-remplir les champs du formulaire
-                    firstNameInput.value = userData.firstName || "";
-                    lastNameInput.value = userData.lastName || "";
-                    emailInput.value = userData.email || user.email || "";
-                    phoneInput.value = userData.phone || "";
-                    addressInput.value = userData.address || "";
+  // Enregistrement des modifications
+  profileForm?.addEventListener("submit", async (event) => {
+    event.preventDefault();
 
-                    // Charger la photo de profil
-                    if (userData.profilePic) {
-                        profilePicPreview.src = userData.profilePic;
-                        uploadedProfilePicURL = userData.profilePic;
-                    }
-                } else {
-                    console.error("Aucune donnée utilisateur trouvée.");
-                }
-            } catch (error) {
-                console.error("Erreur lors de la récupération des données :", error);
-            }
-        } else {
-            console.log("Aucun utilisateur connecté.");
-            window.location.href = "connexion.html"; // Redirige vers la page de connexion si non connecté
-        }
-    });
+    const firstName = firstNameInput.value.trim();
+    const lastName = lastNameInput.value.trim();
+    const email = emailInput.value.trim();
+    const phone = phoneInput.value.trim();
+    const address = addressInput.value.trim();
+    const file = profilePicInput.files[0];
 
-    // Prévisualisation de la photo de profil lors du changement
-    profilePicInput.addEventListener("change", (event) => {
-        const file = event.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                profilePicPreview.src = e.target.result;
-            };
-            reader.readAsDataURL(file);
-        }
-    });
+    try {
+      let profilePicURL = uploadedProfilePicURL;
 
-    // Enregistrement des modifications
-    profileForm.addEventListener("submit", async (event) => {
-        event.preventDefault();
+      if (file) {
+        // Téléversement dans Supabase Storage (bucket: profile-pictures)
+        const path = `${user.id}`; // un fichier par utilisateur
+        const { error: uploadErr } = await supabase.storage.from('profile-pictures').upload(path, file, { upsert: true, cacheControl: '3600', contentType: file.type });
+        if (uploadErr) throw uploadErr;
+        const { data: publicData } = supabase.storage.from('profile-pictures').getPublicUrl(path);
+        profilePicURL = publicData?.publicUrl || profilePicURL;
+      }
 
-        const user = auth.currentUser;
-        if (!user) {
-            console.error("Aucun utilisateur connecté.");
-            return;
-        }
+      const { error: upsertErr } = await supabase.from('users').upsert({
+        id: user.id,
+        first_name: firstName,
+        last_name: lastName,
+        email,
+        phone,
+        address,
+        profile_pic: profilePicURL,
+      });
+      if (upsertErr) throw upsertErr;
 
-        // Récupérer les valeurs du formulaire
-        const firstName = firstNameInput.value.trim();
-        const lastName = lastNameInput.value.trim();
-        const email = emailInput.value.trim();
-        const phone = phoneInput.value.trim();
-        const address = addressInput.value.trim();
-        const file = profilePicInput.files[0];
+      successMessage.style.display = "block";
+      setTimeout(() => { successMessage.style.display = "none"; }, 3000);
+    } catch (e) {
+      console.error('Erreur lors de la mise à jour :', e);
+      errorMessage.textContent = "Une erreur est survenue. Veuillez réessayer.";
+      errorMessage.style.display = "block";
+      setTimeout(() => { errorMessage.style.display = "none"; }, 3000);
+    }
+  });
 
-        try {
-            let profilePicURL = uploadedProfilePicURL;
-
-            // Téléverser la photo de profil dans Firebase Storage
-            if (file) {
-                const storageRef = ref(storage, `profile-pictures/${user.uid}`);
-                await uploadBytes(storageRef, file);
-                profilePicURL = await getDownloadURL(storageRef);
-            }
-
-            // Mettre à jour les données utilisateur dans Firestore
-            const userDocRef = doc(db, "users", user.uid);
-            await updateDoc(userDocRef, {
-                firstName,
-                lastName,
-                email,
-                phone,
-                address,
-                profilePic: profilePicURL,
-            });
-
-            // Afficher un message de succès
-            successMessage.style.display = "block";
-            setTimeout(() => {
-                successMessage.style.display = "none";
-            }, 3000);
-
-            console.log("Profil mis à jour avec succès.");
-        } catch (error) {
-            console.error("Erreur lors de la mise à jour :", error);
-            errorMessage.textContent = "Une erreur est survenue. Veuillez réessayer.";
-            errorMessage.style.display = "block";
-            setTimeout(() => {
-                errorMessage.style.display = "none";
-            }, 3000);
-        }
-    });
-
-    // Fonction pour annuler les modifications
-    window.cancelChanges = () => {
-        profileForm.reset();
-        profilePicPreview.src = uploadedProfilePicURL || "default-avatar.png";
-    };
+  // Fonction pour annuler les modifications
+  window.cancelChanges = () => {
+    profileForm.reset();
+    profilePicPreview.src = uploadedProfilePicURL || "default-avatar.png";
+  };
 });

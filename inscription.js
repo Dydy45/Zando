@@ -1,22 +1,5 @@
 // Importation des modules Firebase
-import { initializeApp } from "https://www.gstatic.com/firebasejs/9.17.2/firebase-app.js";
-import { getAuth, createUserWithEmailAndPassword, signInWithPhoneNumber, RecaptchaVerifier } from "https://www.gstatic.com/firebasejs/9.17.2/firebase-auth.js";
-import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/9.17.2/firebase-firestore.js";
-
-// Configuration Firebase
-const firebaseConfig = {
-  apiKey: "AIzaSyDgtgPCLP4-i6Hz3osBdh-Rko2vJwczl18",
-  authDomain: "la-bonne.firebaseapp.com",
-  projectId: "la-bonne",
-  storageBucket: "la-bonne.firebasestorage.app",
-  messagingSenderId: "298552559651",
-  appId: "1:298552559651:web:16b60e001fe325043e8996"
-};
-
-// Initialisation de Firebase
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app); // Initialisation de Firestore
+import { supabase } from './supabaseClient.js';
 
 // DOMContentLoaded pour exécuter le script après le chargement de la page
 document.addEventListener("DOMContentLoaded", () => {
@@ -30,19 +13,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const termsCheckbox = document.querySelector(".con input[type='checkbox']");
   let isEmailMode = true; // Par défaut, mode email
 
-  // Configurer le reCAPTCHA invisible de Firebase
-  window.recaptchaVerifier = new RecaptchaVerifier('recaptcha-container', {
-    size: 'invisible',
-    callback: (response) => {
-      console.log("reCAPTCHA vérifié :", response);
-    },
-    'expired-callback': () => {
-      console.error("reCAPTCHA expiré. Veuillez réessayer.");
-    }
-  }, auth);
-
   // Bascule entre email et téléphone
-  toggleIcon.addEventListener("click", () => {
+  toggleIcon?.addEventListener("click", () => {
     if (isEmailMode) {
       emailPhoneInput.placeholder = "Numéro de téléphone (+243)";
       emailPhoneInput.value = "";
@@ -58,20 +30,20 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   // Bascule de visibilité du mot de passe
-  togglePasswordIcon.addEventListener("click", () => {
+  togglePasswordIcon?.addEventListener("click", () => {
     const isPasswordVisible = passwordInput.type === "text";
     passwordInput.type = isPasswordVisible ? "password" : "text";
     togglePasswordIcon.textContent = isPasswordVisible ? "visibility_off" : "visibility";
   });
 
-  toggleConfirmPasswordIcon.addEventListener("click", () => {
+  toggleConfirmPasswordIcon?.addEventListener("click", () => {
     const isConfirmPasswordVisible = confirmPasswordInput.type === "text";
     confirmPasswordInput.type = isConfirmPasswordVisible ? "password" : "text";
     toggleConfirmPasswordIcon.textContent = isConfirmPasswordVisible ? "visibility_off" : "visibility";
   });
 
   // Validation et soumission du formulaire
-  signupForm.addEventListener("submit", async (event) => {
+  signupForm?.addEventListener("submit", async (event) => {
     event.preventDefault();
 
     const fullName = document.getElementById("name").value.trim();
@@ -79,11 +51,10 @@ document.addEventListener("DOMContentLoaded", () => {
     const password = passwordInput.value.trim();
     const confirmPassword = confirmPasswordInput.value.trim();
 
-    // Séparer le prénom et le nom
     const [firstName, ...lastNameParts] = fullName.split(' ');
     const lastName = lastNameParts.join(' ');
 
-    if (!firstName || !lastName || !emailOrPhone || !password || !confirmPassword) {
+    if (!firstName || !lastName || !emailOrPhone || (!password && isEmailMode) || (!confirmPassword && isEmailMode)) {
       showError("Veuillez remplir tous les champs.");
       return;
     }
@@ -93,80 +64,84 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    if (isEmailMode) {
-      // Mode Email
-      if (!validateEmail(emailOrPhone)) {
-        showError("Veuillez entrer une adresse email valide.");
-        return;
-      }
+    try {
+      if (isEmailMode) {
+        if (!validateEmail(emailOrPhone)) {
+          showError("Veuillez entrer une adresse email valide.");
+          return;
+        }
+        if (!validatePassword(password)) {
+          showError("Le mot de passe doit contenir au moins 8 caractères.");
+          return;
+        }
+        if (password !== confirmPassword) {
+          showError("Les mots de passe ne correspondent pas.");
+          return;
+        }
 
-      if (!validatePassword(password)) {
-        showError("Le mot de passe doit contenir au moins 8 caractères.");
-        return;
-      }
-
-      if (password !== confirmPassword) {
-        showError("Les mots de passe ne correspondent pas.");
-        return;
-      }
-
-      try {
-        // Créer un utilisateur avec email/mot de passe
-        const userCredential = await createUserWithEmailAndPassword(auth, emailOrPhone, password);
-        const user = userCredential.user;
-
-        // Enregistrer les informations dans Firestore
-        await setDoc(doc(db, "users", user.uid), {
-          firstName,
-          lastName,
+        const { data, error } = await supabase.auth.signUp({
           email: emailOrPhone,
-          phone: null // Pas de téléphone en mode email
+          password,
+          options: {
+            data: { firstName, lastName }
+          }
         });
+        if (error) throw error;
+        const userId = data.user?.id;
 
-        alert("Inscription réussie !");
-        console.log("Utilisateur enregistré :", user);
+        if (userId) {
+          const { error: upsertErr } = await supabase.from('users').upsert({
+            id: userId,
+            first_name: firstName,
+            last_name: lastName,
+            email: emailOrPhone,
+            phone: null
+          });
+          if (upsertErr) throw upsertErr;
+        }
+
+        alert("Inscription réussie ! Veuillez vérifier votre email si la confirmation est requise.");
         window.location.href = "index.html";
-      } catch (error) {
-        console.error("Erreur Firebase :", error.message);
-        showError("Une erreur est survenue lors de l'inscription.");
-      }
-    } else {
-      // Mode Téléphone
-      if (!validatePhone(emailOrPhone)) {
-        showError("Veuillez entrer un numéro de téléphone valide commençant par +243.");
-        return;
-      }
+      } else {
+        if (!validatePhone(emailOrPhone)) {
+          showError("Veuillez entrer un numéro de téléphone valide commençant par +243.");
+          return;
+        }
 
-      try {
-        const appVerifier = window.recaptchaVerifier;
-        const confirmationResult = await signInWithPhoneNumber(auth, emailOrPhone, appVerifier);
-        console.log("Code envoyé :", confirmationResult);
+        const { error: otpErr } = await supabase.auth.signInWithOtp({ phone: emailOrPhone });
+        if (otpErr) throw otpErr;
 
         const smsCode = prompt("Entrez le code SMS que vous avez reçu :");
         if (smsCode) {
-          const userCredential = await confirmationResult.confirm(smsCode);
-          const user = userCredential.user;
-
-          // Enregistrer les informations dans Firestore
-          await setDoc(doc(db, "users", user.uid), {
-            firstName,
-            lastName,
-            email: null, // Pas d'email en mode téléphone
-            phone: emailOrPhone
+          const { data: verifyData, error: verifyErr } = await supabase.auth.verifyOtp({
+            phone: emailOrPhone,
+            token: smsCode,
+            type: 'sms'
           });
+          if (verifyErr) throw verifyErr;
+
+          const { data: userData } = await supabase.auth.getUser();
+          const userId = userData.user?.id;
+          if (userId) {
+            await supabase.from('users').upsert({
+              id: userId,
+              first_name: firstName,
+              last_name: lastName,
+              email: null,
+              phone: emailOrPhone
+            });
+          }
 
           alert("Inscription réussie !");
-          console.log("Utilisateur enregistré :", user);
           window.location.href = "index.html";
         }
-      } catch (error) {
-        console.error("Erreur Firebase :", error.message);
-        showError("Une erreur est survenue lors de l'inscription.");
       }
+    } catch (error) {
+      console.error("Erreur Supabase :", error.message || error);
+      showError("Une erreur est survenue lors de l'inscription.");
     }
   });
 
-  // Fonction pour afficher une erreur
   function showError(message) {
     const errorDiv = document.querySelector(".error-message");
     if (errorDiv) {
@@ -174,19 +149,13 @@ document.addEventListener("DOMContentLoaded", () => {
       errorDiv.style.display = "block";
     }
   }
-
-  // Fonction pour valider un email
   function validateEmail(email) {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
   }
-
-  // Fonction pour valider un numéro de téléphone
   function validatePhone(phone) {
     return phone.startsWith("+243") && phone.length >= 12;
   }
-
-  // Fonction pour valider un mot de passe
   function validatePassword(password) {
     return password.length >= 8;
   }

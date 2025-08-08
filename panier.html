@@ -409,7 +409,7 @@ tr:hover td {
     <nav class="navigation">
       <a href="index.html">Accueil</a>
       <a href="contact.html">Contact</a>
-      <a href="à propos.html">À propos</a>
+      <a href="a-propos.html">À propos</a>
       <a href="connexion.html">Se connecter</a>
     </nav>
     <div class="header-actions">
@@ -434,7 +434,7 @@ tr:hover td {
             <a href="commandes.html">Mes commandes</a>
             <a href="annulations.html">Mes annulations</a>
             <a href="avis.html">Mes avis</a>
-            <a href="déconnexion.html" id="logout-link">Déconnection</a>
+            <a href="connexion.html" id="logout-link">Déconnexion</a>
           </div>
         </div>
       </div>
@@ -562,8 +562,8 @@ document.addEventListener('click', function (e) {
 
 // Mise à jour du total avec frais de livraison
 function updateTotalWithShipping(sousTotal) {
-  const isFirstOrder = true; // Simuler une commande précédente
-  const fraisLivraisonFC = isFirstOrder ? 0 : 6000; // 4000 FC
+  const isFirstOrder = true;
+  const fraisLivraisonFC = isFirstOrder ? 0 : 6000;
   const tauxConversion = 2850; // 1 $ = 2850 FC
   const fraisLivraisonUSD = fraisLivraisonFC / tauxConversion;
 
@@ -590,9 +590,8 @@ document.addEventListener('DOMContentLoaded', () => {
     window.location.href = 'index.html';
   });
 });</script>
-<script type="module" src="firebase.js"></script>
-<script type="module" src="auth.js"></script>
-<script type="module" src="scripts/déconnexion.js"></script>
-<script type="module" src="testFirebase.js"></script>
+<script type="module" src="supabaseClient.js"></script>
+<script type="module" src="scripts/deconnexion.js"></script>
+<!-- removed testFirebase.js for production -->
 </body>
 </html>
