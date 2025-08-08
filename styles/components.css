@@ -1,0 +1,44 @@
+/* Section headers */
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 24px 0 12px;
+}
+.section-header .title-wrap {
+  display: flex; align-items: center; gap: 10px;
+}
+.section-header .accent {
+  width: 6px; height: 28px; background: var(--color-primary); border-radius: 6px;
+}
+.section-header h2 { margin: 0; font-weight: 700; }
+
+/* Modern table */
+.table-modern {
+  width: 100%;
+  background: var(--color-surface);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+.table-modern thead th {
+  background: #f3f4f6; color: #374151; font-weight: 600;
+}
+.table-modern tbody tr + tr td { border-top: 1px solid #eee; }
+.table-modern td, .table-modern th { padding: 14px; }
+
+/* Forms */
+.form-modern input, .form-modern textarea, .form-modern select {
+  border-radius: 10px; border: 1px solid #e5e7eb; padding: 10px 12px;
+}
+.form-modern button { border-radius: 10px; }
+
+/* Header adjustments for legacy markup */
+header .navigation a { padding: 8px 10px; border-radius: 8px; }
+header .navigation a:hover { background: #111; color: #fff; }
+
+/* Product grid helpers */
+.products.grid, .products-container.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; }
+
+/* Badge */
+#cart-badge { font-size: 12px; padding: 3px 6px; }
