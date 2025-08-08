@@ -1,17 +1,39 @@
 document.addEventListener("DOMContentLoaded", () => {
     const recentProductsContainer = document.querySelector(".produits-recents .products");
     const categoryContainers = {
-        "électronics": document.querySelector(".categorie-électronique .products"),
+        electronics: document.querySelector(".categorie-électronique .products"),
         "mode-homme": document.querySelector(".categorie-mode-homme .products"),
         "mode-femme": document.querySelector(".categorie-mode-femme .products"),
-        "maison": document.querySelector(".categorie-maison .products"),
-        "sport": document.querySelector(".categorie-sport .products"),
-        "bébé": document.querySelector(".categorie-bébé .products"),
-        "alimentation": document.querySelector(".categorie-alimentation .products"),
-        "santé": document.querySelector(".categorie-santé .products"),
+        maison: document.querySelector(".categorie-maison .products"),
+        sport: document.querySelector(".categorie-sport .products"),
+        bebe: document.querySelector(".categorie-bébé .products"),
+        alimentation: document.querySelector(".categorie-alimentation .products"),
+        sante: document.querySelector(".categorie-santé .products"),
     };
 
     const products = JSON.parse(localStorage.getItem("products")) || [];
+
+    // Normaliser les catégories des produits existants (ASCII)
+    const normalizeCategory = (category) => {
+        if (!category) return category;
+        const map = {
+            "électronique": "electronics",
+            "electronique": "electronics",
+            "mode-homme": "mode-homme",
+            "mode-femme": "mode-femme",
+            "maison": "maison",
+            "sport": "sport",
+            "bébé": "bebe",
+            "bebe": "bebe",
+            "alimentation": "alimentation",
+            "santé": "sante",
+            "sante": "sante",
+        };
+        const key = category.toLowerCase();
+        return map[key] || category;
+    };
+
+    products.forEach(p => { p.category = normalizeCategory(p.category); });
     const now = Date.now();
     const twoDaysInMilliseconds = 48 * 60 * 60 * 1000;
 
@@ -27,7 +49,7 @@ document.addEventListener("DOMContentLoaded", () => {
             <div class="details">
                 <h3>${product.name}</h3>
                 <div class="price"><span>${product.price.toLocaleString()} USD</span></div>
-                <button class="add-to-cart" data-id="${product.id}">Ajouter au panier</button>
+                <button class="add-to-cart" data-product-id="${product.id}">Ajouter au panier</button>
             </div>
         `;
 
@@ -92,13 +114,15 @@ document.addEventListener("DOMContentLoaded", () => {
     const cart = JSON.parse(localStorage.getItem("cart")) || [];
     document.body.addEventListener("click", (event) => {
         if (event.target.classList.contains("add-to-cart")) {
-            const productId = event.target.getAttribute("data-id");
+            const productId = event.target.getAttribute("data-product-id");
             const product = products.find((p) => p.id == productId);
 
             if (product) {
-                cart.push(product);
-                localStorage.setItem("cart", JSON.stringify(cart));
-                alert("Produit ajouté au panier !");
+                if (!cart.some(p => p.id == productId)) {
+                    cart.push({ ...product, quantity: 1 });
+                    localStorage.setItem("cart", JSON.stringify(cart));
+                    alert("Produit ajouté au panier !");
+                }
             }
         }
     });

@@ -1,22 +1,10 @@
 // Importation des modules Firebase
-import { initializeApp } from "https://www.gstatic.com/firebasejs/9.17.2/firebase-app.js";
-import { getAuth, createUserWithEmailAndPassword, signInWithPhoneNumber, RecaptchaVerifier } from "https://www.gstatic.com/firebasejs/9.17.2/firebase-auth.js";
+import { auth } from "./firebase.js";
+import { createUserWithEmailAndPassword, signInWithPhoneNumber, RecaptchaVerifier } from "https://www.gstatic.com/firebasejs/9.17.2/firebase-auth.js";
 import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/9.17.2/firebase-firestore.js";
 
-// Configuration Firebase
-const firebaseConfig = {
-  apiKey: "AIzaSyDgtgPCLP4-i6Hz3osBdh-Rko2vJwczl18",
-  authDomain: "la-bonne.firebaseapp.com",
-  projectId: "la-bonne",
-  storageBucket: "la-bonne.firebasestorage.app",
-  messagingSenderId: "298552559651",
-  appId: "1:298552559651:web:16b60e001fe325043e8996"
-};
-
-// Initialisation de Firebase
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app); // Initialisation de Firestore
+// Initialisation de Firestore à partir de l'application existante
+const db = getFirestore();
 
 // DOMContentLoaded pour exécuter le script après le chargement de la page
 document.addEventListener("DOMContentLoaded", () => {
