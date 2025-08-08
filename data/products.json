@@ -1,0 +1,32 @@
+[
+  {
+    "id": 1,
+    "name": "Wireless Gamepad",
+    "image": "images/image1.jpg",
+    "price": 15,
+    "discount": 25,
+    "rating": 5,
+    "reviews": 78,
+    "description": "Un gamepad sans fil ergonomique pour les gamers."
+  },
+  {
+    "id": 2,
+    "name": "Casque Bluetooth",
+    "image": "images/image2.jpg",
+    "price": 30,
+    "discount": 50,
+    "rating": 4.5,
+    "reviews": 120,
+    "description": "Casque Bluetooth avec une qualité sonore exceptionnelle."
+  },
+  {
+    "id":3,
+    "name": "Gaming Monitor",
+    "image": "images/image3.jpg",
+    "price": 180,
+    "discount": 200,
+    "rating": 5,
+    "reviews": 220,
+    "description": " un pc de gaming de bonne qualité."
+  }
+]

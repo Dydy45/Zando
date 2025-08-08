@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modifier le profil utilisateur</title>
+    <link rel="stylesheet" href="styles/compte.css">
+    <link rel="stylesheet" href="styles/style1.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+  <header>
+    <div class="logo">
+      <img src="logo/zando-logo.png" alt="Zando" class="site-logo">
+    </div>
+    <nav class="navigation">
+      <a href="index.html">Accueil</a>
+      <a href="contact.html">Contact</a>
+      <a href="à propos.html">À propos</a>
+      <a href="connexion.html">Se connecter</a>
+    </nav>
+    <div class="header-actions">
+      <div class="search-bar">
+        <input type="text" placeholder="Que cherchez-vous ?">
+        <button>
+          <a href="recherche.html"><span class="material-icons">search</span></a>
+        </button>
+      </div>
+      <div class="icons">
+        <a href="favoris.html">
+          <span class="material-icons">favorite</span>
+        </a>
+        <a href="panier.html" class="cart">
+          <span class="material-icons">shopping_cart</span>
+          <span class="cart-badge" id="cart-badge">0</span>
+        </a>
+        <div class="user-menu">
+          <span class="material-icons user-icon">account_circle</span>
+          <div class="dropdown-menu">
+            <a href="compte.html">Gérer mon compte</a>
+            <a href="commandes.html">Mes commandes</a>
+            <a href="annulations.html">Mes annulations</a>
+            <a href="avis.html">Mes avis</a>
+            <a href="déconnexion.html" id="logout-link">Déconnection</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+    <div class="container">
+        <aside class="sidebar">
+            <ul>
+                <li><a href="#" class="active">Mon Profil</a></li>
+                <li><a href="#">Carnet d'adresses</a></li>
+                <li><a href="#">Mes options de paiement</a></li>
+                <li><a href="#">Mes retours</a></li>
+                <li><a href="#">Mes annulations</a></li>
+                <li><a href="#">Ma liste des souhaits</a></li>
+            </ul>
+        </aside>
+
+        <main class="content">
+            <h2>Modifier votre profil</h2>
+            <form id="profile-form">
+                <!-- Section Photo de profil -->
+                <div class="profile-picture">
+                    <label for="profile-pic">Photo de profil</label>
+                    <div class="picture-container">
+                        <img id="profile-pic-preview" src="default-avatar.png" alt="Aperçu de la photo de profil">
+                        <input type="file" id="profile-pic" accept="image/*">
+                    </div>
+                </div>
+
+                <!-- Champs de profil -->
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="first-name">Prénom</label>
+                        <input type="text" id="first-name" placeholder="Prénom">
+                    </div>
+                    <div class="form-group">
+                        <label for="last-name">Nom</label>
+                        <input type="text" id="last-name" placeholder="Nom">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="email">Adresse email</label>
+                    <input type="email" id="email" placeholder="Email">
+                    <p class="error" id="email-error" style="display: none;">Email invalide.</p>
+                </div>
+                <div class="form-group">
+                    <label for="phone-number">Numéro de téléphone</label>
+                    <input type="tel" id="phone-number" placeholder="Numéro de téléphone(+243)">
+                </div>
+                <div class="form-group">
+                    <label for="address">Adresse</label>
+                    <input type="text" id="address" placeholder="Adresse">
+                </div>
+                
+                <!-- Changement de mot de passe -->
+                <h3>Changer de mot de passe</h3>
+                <div class="form-group">
+                    <label for="current-password">Mot de passe actuel</label>
+                    <input type="password" id="current-password" placeholder="Mot de passe actuel">
+                </div>
+                <div class="form-group">
+                    <label for="new-password">Nouveau mot de passe</label>
+                    <input type="password" id="new-password" placeholder="Nouveau mot de passe">
+                </div>
+                <div class="form-group">
+                    <label for="confirm-password">Confirmer le nouveau mot de passe</label>
+                    <input type="password" id="confirm-password" placeholder="Confirmer le mot de passe">
+                    <p class="error" id="password-error" style="display: none;">Les mots de passe ne correspondent pas.</p>
+                </div>
+                
+                <!-- Boutons -->
+                <div class="form-buttons">
+                    <button type="button" class="cancel" onclick="cancelChanges()">Annuler</button>
+                    <button type="submit" class="save">Enregistrer les modifications</button>
+                </div>
+            </form>
+            <p class="success" id="success-message" style="display: none;">Modifications enregistrées avec succès.</p>
+        </main>
+    </div>
+    <footer>
+      <div class="features">
+        <div class="feature-item">
+          <h3>Support</h3>
+          <p class="p">10, Lukunga, Q/De l'école, C/Lemba, Kinshasa, RDC.</p>
+          <p class="p"><a href="mailto: ndjokodylan8@gmail.com">ndjokodylan8@gmail.com</a></p>
+          <p class="p"><a href="tel:+243827708208">+243827708208</a></p>
+        </div>
+        <div class="feature-item">
+          <h3>Compte</h3>
+          <p class="p"><a href="compte.html">Mon compte</a></p>
+          <p class="p"><a href="connexion.html">Se connecter/S'enregistrer</a></p>
+          <p class="p"><a href="panier.html">Panier</a></p>
+          <p class="p"><a href="favoris.html">Liste de souhaits</a></p>
+        </div>
+        <div class="feature-item">
+          <h3>Liens rapides</h3>
+          <p class="p"><a href="#">Politique de confidentialité</a></p>
+          <p class="p"><a href="#">Conditions d'utilisation</a></p>
+          <p class="p"><a href="#">FAQ</a></p>
+          <p class="p"><a href="contact.html">Contact</a></p>
+        </div>
+      </div>
+    </footer>
+    <script type="module" src="compte.js"></script>
+    <script type="module" src="firebase.js"></script>
+    <script type="module" src="auth.js"></script>
+    <script type="module" src="scripts/déconnexion.js"></script>
+    <script type="module" src="testFirebase.js"></script>
+    <script>
+        // Aperçu de la photo de profil
+        document.getElementById("profile-pic").addEventListener("change", function (event) {
+            const file = event.target.files[0];
+            const preview = document.getElementById("profile-pic-preview");
+
+            if (file && file.type.startsWith("image/")) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    preview.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            } else {
+                preview.src = "default-avatar.png";
+            }
+        });
+
+        // Validation des mots de passe
+        document.getElementById("profile-form").addEventListener("submit", function (event) {
+            event.preventDefault();
+
+            const newPassword = document.getElementById("new-password").value;
+            const confirmPassword = document.getElementById("confirm-password").value;
+
+            if (newPassword !== confirmPassword) {
+                document.getElementById("password-error").style.display = "block";
+                return;
+            }
+
+            document.getElementById("password-error").style.display = "none";
+            document.getElementById("success-message").style.display = "block";
+        });
+
+        function cancelChanges() {
+            document.getElementById("profile-form").reset();
+            document.getElementById("profile-pic-preview").src = "default-avatar.png";
+        }
+    </script>
+</body>
+</html>

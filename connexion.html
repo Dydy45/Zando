@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Zando</title>
+  <!-- Custom Styles -->
+  <!---<link rel="stylesheet" href="styles/style.css">-->
+  <link rel="stylesheet" href="styles/style1 1.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+
+<body>
+  <header>
+    <div class="logo">
+      <img src="logo/zando-logo.png" alt="Zando" class="site-logo">
+    </div>
+    <nav class="navigation">
+      <a href="index.html">Accueil</a>
+      <a href="contact.html">Contact</a>
+      <a href="à propos.html">À propos</a>
+      <a href="connexion.html">Se connecter</a>
+    </nav>
+    <div class="header-actions">
+      <div class="search-bar">
+        <input type="text" placeholder="Que cherchez-vous ?">
+        <button>
+          <a href="recherche.html"><span class="material-icons">search</span></a>
+        </button>
+      </div>
+      <div class="icons">
+        <a href="favoris.html">
+          <span class="material-icons">favorite</span>
+        </a>
+        <a href="panier.html" class="cart">
+          <span class="material-icons">shopping_cart</span>
+          <span class="cart-badge" id="cart-badge">0</span>
+        </a>
+        <div class="user-menu">
+          <span class="material-icons user-icon">account_circle</span>
+          <div class="dropdown-menu">
+            <a href="compte.html">Gérer mon compte</a>
+            <a href="commandes.html">Mes commandes</a>
+            <a href="annulations.html">Mes annulations</a>
+            <a href="avis.html">Mes avis</a>
+            <a href="déconnexion.html">Déconnection</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+  <main>
+    <section class="create-account">
+    <div class="container">
+        <div class="row">
+            <!-- Colonne avec l'image -->
+            <div class="image-column">
+                <img src="logo/zando-logo.png" alt="Phone and shopping cart" class="account-image">
+            </div>
+            <!-- Colonne avec le formulaire -->
+            <div class="form-column">
+                <h1>Connexion</h1>
+                <p>Entrez vos informations pour vous connecter</p>
+                <form id="login-form" class="account-form">
+                    <div class="form-group">
+                        <input type="text" id="email" name="email" placeholder="Adresse email" required>
+                        <span class="material-icons toggle-icon" id="toggle-icon" title="Passer au numéro de téléphone">phone</span>
+                    </div>
+                    <div class="form-group">
+                        <input type="password" id="password" name="password" placeholder="Mot de passe" required>
+                        <span class="material-icons toggle-password" id="toggle-password">visibility_off</span>
+                    </div>
+                    <div class="error-message" style="color: red; display: none; margin-top: 10px;"></div>
+                    <div id="recaptcha-container"></div>
+                    <button type="submit" class="btn">Se connecter</button>
+                    <p class="login-link">Vous n'avez pas de compte ? <a href="inscription.html">Inscrivez-vous ici</a></p>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+  </main>
+  <footer>
+    <div class="features">
+      <div class="feature-item">
+        <h3>Support</h3>
+        <p class="p">10, Lukunga, Q/De l'école, C/Lemba, Kinshasa, RDC.</p>
+        <p class="p"><a href="mailto: ndjokodylan8@gmail.com">ndjokodylan8@gmail.com</a></p>
+        <p class="p"><a href="tel:+243827708208">+243827708208</a></p>
+      </div>
+      <div class="feature-item">
+        <h3>Compte</h3>
+        <p class="p"><a href="compte.html">Mon compte</a></p>
+        <p class="p"><a href="connexion.html">Se connecter/S'enregistrer</a></p>
+        <p class="p"><a href="panier.html">Panier</a></p>
+        <p class="p"><a href="favoris.html">Liste de souhaits</a></p>
+      </div>
+      <div class="feature-item">
+        <h3>Liens rapides</h3>
+        <p class="p"><a href="#">Politique de confidentialité</a></p>
+        <p class="p"><a href="#">Conditions d'utilisation</a></p>
+        <p class="p"><a href="#">FAQ</a></p>
+        <p class="p"><a href="contact.html">Contact</a></p>
+      </div>
+    </div>
+  </footer>
+  <!-- Scripts Firebase -->
+<script type="module" src="connexion.js"></script>
+<script type="module" src="firebase.js"></script>
+<script type="module" src="auth.js"></script>
+<script type="module" src="testFirebase.js"></script>
+  
+</body>
+</html>
